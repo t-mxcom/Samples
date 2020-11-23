@@ -27,23 +27,6 @@ namespace AddVersusTryAdd
             Console.WriteLine("Example 4: Mixing AddSingleton and AddScoped");
             Example4_MixingAddSingletonAndAddScoped();
             Console.WriteLine();
-
-
-            //Console.WriteLine("Hello World!");
-
-            //ServiceCollection serviceCollection = new ServiceCollection();
-            //// Add...
-
-            //// Mix AddSingleton und AddScoped -> selbes Interface registrieren und schauen, was bei GetService(s) kommt
-
-            //IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
-
-            //IDisposable test = serviceProvider.GetService<IDisposable>();
-
-            //using (IServiceScope serviceScope = serviceProvider.CreateScope())
-            //{
-            //    // Scoped Services
-            //}
         }
 
         /// <summary>
