@@ -27,6 +27,10 @@ namespace AddVersusTryAdd
             Console.WriteLine("Example 4: Mixing AddSingleton and AddScoped");
             Example4_MixingAddSingletonAndAddScoped();
             Console.WriteLine();
+
+            Console.WriteLine("Example 5: Mixing AddSingleton and TryAddScoped");
+            Example5_MixingAddSingletonAndTryAddScoped();
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -192,7 +196,7 @@ namespace AddVersusTryAdd
             // Build the ServiceProvider
             IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 
-            // GetService<IExample> returns the last implementation added, event it was added using AddScoped
+            // GetService<IExample> returns the last implementation added, even it was added using AddScoped
             IExample example = serviceProvider.GetService<IExample>();
             Console.WriteLine($"\tGetService<{nameof(IExample)}> returned '{example.ImplementationName}'.");
 
@@ -213,6 +217,74 @@ namespace AddVersusTryAdd
                 Console.WriteLine($"\t\tGetService<{nameof(IExample)}> returned '{scopedExample.ImplementationName}'.");
 
                 // GetServices<IExample> returns an instance of every implementation added, no matter if singleton or scoped
+                IEnumerable<IExample> scopedExamples = serviceScope.ServiceProvider.GetServices<IExample>();
+                Console.WriteLine($"\t\tGetServices<{nameof(IExample)}> returned");
+                foreach (IExample scopedExamplesInstance in scopedExamples)
+                {
+                    Console.WriteLine($"\t\t\t'{scopedExamplesInstance.ImplementationName}'");
+                }
+
+                Console.WriteLine("\t\tLeaving the scope.");
+            }
+        }
+
+        /// <summary>
+        /// Example #5: Mixing AddSingleton and TryAddScoped on the same type
+        /// </summary>
+        /// <remarks>
+        /// This example adds several implementations of the same interface to the <see cref="ServiceCollection"/>
+        /// by either using <see cref="ServiceCollectionServiceExtensions.AddSingleton{TService, TImplementation}(IServiceCollection)"/>
+        /// or <see cref="ServiceCollectionServiceExtensions.TryAddScoped{TService, TImplementation}(IServiceCollection)"/>.
+        /// After that it first retrieves a single instance using <see cref="ServiceProviderServiceExtensions.GetService{T}(IServiceProvider)"/> and then
+        /// an instance list using <see cref="ServiceProviderServiceExtensions.GetServices{T}(IServiceProvider)"/> once outside and once inside a scope.
+        /// The name of the implementation of each instance is then printed to the console.
+        /// </remarks>
+        private static void Example5_MixingAddSingletonAndTryAddScoped()
+        {
+            // Create new ServiceCollection
+            ServiceCollection serviceCollection = new ServiceCollection();
+
+            // Add some implementations
+            Console.WriteLine("\tAdding singletons using AddSingleton ...");
+            Console.WriteLine($"\t\t- {nameof(IExample)} -> {nameof(ExampleImplementation1)}");
+            serviceCollection.AddSingleton<IExample, ExampleImplementation1>();
+            Console.WriteLine($"\t\t- {nameof(IExample)} -> {nameof(ExampleImplementation2)}");
+            serviceCollection.AddSingleton<IExample, ExampleImplementation2>();
+            Console.WriteLine($"\t\t- {nameof(IExample)} -> {nameof(ExampleImplementation3)}");
+            serviceCollection.AddSingleton<IExample, ExampleImplementation3>();
+
+            Console.WriteLine("\tAdding scoped instances using TryAddScoped ...");
+            Console.WriteLine($"\t\t- {nameof(IExample)} -> {nameof(ExampleImplementation1)}");
+            serviceCollection.TryAddScoped<IExample, ExampleImplementation1>();
+            Console.WriteLine($"\t\t- {nameof(IExample)} -> {nameof(ExampleImplementation2)}");
+            serviceCollection.TryAddScoped<IExample, ExampleImplementation2>();
+            Console.WriteLine($"\t\t- {nameof(IExample)} -> {nameof(ExampleImplementation3)}");
+            serviceCollection.TryAddScoped<IExample, ExampleImplementation3>();
+
+            // Build the ServiceProvider
+            IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
+
+            // GetService<IExample> returns the last implementation added using AddSingleton
+            IExample example = serviceProvider.GetService<IExample>();
+            Console.WriteLine($"\tGetService<{nameof(IExample)}> returned '{example.ImplementationName}'.");
+
+            // GetServices<IExample> returns an instance of every implementation added as singleton, no scoped instances are created
+            IEnumerable<IExample> examples = serviceProvider.GetServices<IExample>();
+            Console.WriteLine($"\tGetServices<{nameof(IExample)}> returned");
+            foreach (IExample examplesInstance in examples)
+            {
+                Console.WriteLine($"\t\t'{examplesInstance.ImplementationName}'");
+            }
+
+            // Create a scope
+            Console.WriteLine("\tEntering a scope ...");
+            using (IServiceScope serviceScope = serviceProvider.CreateScope())
+            {
+                // GetService<IExample> returns the last implementation added using AddSingleton
+                IExample scopedExample = serviceScope.ServiceProvider.GetService<IExample>();
+                Console.WriteLine($"\t\tGetService<{nameof(IExample)}> returned '{scopedExample.ImplementationName}'.");
+
+                // GetServices<IExample> returns an instance of every implementation added as singleton, no scoped instances are created, thus we get the same instances as outside the scope
                 IEnumerable<IExample> scopedExamples = serviceScope.ServiceProvider.GetServices<IExample>();
                 Console.WriteLine($"\t\tGetServices<{nameof(IExample)}> returned");
                 foreach (IExample scopedExamplesInstance in scopedExamples)
