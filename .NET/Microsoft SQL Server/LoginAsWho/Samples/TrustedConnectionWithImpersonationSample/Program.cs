@@ -20,10 +20,10 @@ namespace TrustedConnectionWithImpersonationSample
 
             Console.WriteLine("The application tries to connect to the following SQL Server Instance:");
             Console.WriteLine();
-            ColorConsole.WriteColoredLabelTextLine("Address", SqlServerAddress);
-            ColorConsole.WriteColoredLabelTextLine("Database", SqlServerDatabase);
-            ColorConsole.WriteColoredLabelTextLine("Impersonated Windows-User", WindowsUser);
-            ColorConsole.WriteColoredLabelTextLine("Impersonated Windows-User Password", WindowsUserPassword);
+            ColorConsole.WriteHighlightedLabelTextLine("Address", SqlServerAddress);
+            ColorConsole.WriteHighlightedLabelTextLine("Database", SqlServerDatabase);
+            ColorConsole.WriteHighlightedLabelTextLine("Impersonated Windows-User", WindowsUser);
+            ColorConsole.WriteHighlightedLabelTextLine("Impersonated Windows-User Password", WindowsUserPassword);
             Console.WriteLine();
             Console.WriteLine("Press ENTER to continue ...");
             Console.ReadLine();
@@ -39,7 +39,7 @@ namespace TrustedConnectionWithImpersonationSample
 
             // NEVER EVER print or log the connection string like this in your production system!
             // It contains the plaintext password before the connection was opened.
-            ColorConsole.WriteColoredLabelTextLine("Connection String", sqlConnectionString);
+            ColorConsole.WriteHighlightedLabelTextLine("Connection String", sqlConnectionString);
             Console.WriteLine();
 
             Console.WriteLine("Connection is being established ...");
@@ -50,7 +50,7 @@ namespace TrustedConnectionWithImpersonationSample
 
                 // AFTER the connection was opened, it's safe to log or print SqlConnection.ConnectionString!
                 // As you can see, the password got removed.
-                ColorConsole.WriteColoredLabelTextLine("Connected to", sqlConnection.ConnectionString);
+                ColorConsole.WriteHighlightedLabelTextLine("Connected to", sqlConnection.ConnectionString);
 
                 // Query and print user context
                 Console.WriteLine("User context is being queried ...");
@@ -75,17 +75,17 @@ namespace TrustedConnectionWithImpersonationSample
                 out string? sessionUser,
                 out string? systemUser);
 
-            ColorConsole.WriteColoredLabelTextLine("USER_ID", userId);
-            ColorConsole.WriteColoredLabelTextLine("USER_NAME", userName);
-            ColorConsole.WriteColoredLabelTextLine("USER_SID", userSid);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_ID", sUserId);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_NAME", sUserName);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_SID", sUserSid);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_SNAME", sUserSName);
-            ColorConsole.WriteColoredLabelTextLine("CURRENT_USER", currentUser);
-            ColorConsole.WriteColoredLabelTextLine("ORIGINAL_LOGIN", originalLogin);
-            ColorConsole.WriteColoredLabelTextLine("SESSION_USER", sessionUser);
-            ColorConsole.WriteColoredLabelTextLine("SYSTEM_USER", systemUser);
+            ColorConsole.WriteHighlightedLabelTextLine("USER_ID", userId);
+            ColorConsole.WriteHighlightedLabelTextLine("USER_NAME", userName);
+            ColorConsole.WriteHighlightedLabelTextLine("USER_SID", userSid);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_ID", sUserId);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_NAME", sUserName);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_SID", sUserSid);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_SNAME", sUserSName);
+            ColorConsole.WriteHighlightedLabelTextLine("CURRENT_USER", currentUser);
+            ColorConsole.WriteHighlightedLabelTextLine("ORIGINAL_LOGIN", originalLogin);
+            ColorConsole.WriteHighlightedLabelTextLine("SESSION_USER", sessionUser);
+            ColorConsole.WriteHighlightedLabelTextLine("SYSTEM_USER", systemUser);
         }
     }
 }

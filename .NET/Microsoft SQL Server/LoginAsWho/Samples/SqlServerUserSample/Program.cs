@@ -1,5 +1,4 @@
-﻿using System;
-using ConsoleHelper;
+﻿using ConsoleHelper;
 using SqlHelper;
 using Microsoft.Data.SqlClient;
 
@@ -15,19 +14,48 @@ namespace SqlServerUserSample
 
         static void Main(string[] args)
         {
+            // Print application title
             ColorConsole.WriteStrongLine("SqlServerUserSample - Connect with a SQL Server User");
             ColorConsole.WriteStrongLine(string.Empty.PadRight(Console.WindowWidth, '-'));
 
+            // Print application description and specific values
             Console.WriteLine("The application tries to connect to the following SQL Server Instance:");
             Console.WriteLine();
-            ColorConsole.WriteColoredLabelTextLine("Address", SqlServerAddress);
-            ColorConsole.WriteColoredLabelTextLine("Database", SqlServerDatabase);
-            ColorConsole.WriteColoredLabelTextLine("User", SqlServerUser);
-            ColorConsole.WriteColoredLabelTextLine("Password", SqlServerUserPassword);
+            ColorConsole.WriteHighlightedLabelTextLine("Address", SqlServerAddress);
+            ColorConsole.WriteHighlightedLabelTextLine("Database", SqlServerDatabase);
+            ColorConsole.WriteHighlightedLabelTextLine("User", SqlServerUser);
+            ColorConsole.WriteHighlightedLabelTextLine("Password", SqlServerUserPassword);
             Console.WriteLine();
+
+            // Wait for the user to confirm that everything was set up
             Console.WriteLine("Press ENTER to continue ...");
             Console.ReadLine();
+            Console.WriteLine();
 
+            // Setup local user context
+            SetupLocalUserContext();
+
+            // Build Connection String
+            string sqlConnectionString = BuildConnectionString();
+
+            // Establish connection
+            using (SqlConnection sqlConnection = EstablishSqlConnection(sqlConnectionString))
+            {
+                // Query user context
+                QueryUserContext(sqlConnection);
+            }
+        }
+
+        private static void SetupLocalUserContext()
+        {
+            Console.WriteLine("Setting up the local user context ...");
+            Console.WriteLine();
+            ColorConsole.WriteColoredLine("For this sample, nothing needs to be set up!", ConsoleColor.Magenta);
+            Console.WriteLine();
+        }
+
+        private static string BuildConnectionString()
+        {
             Console.WriteLine("Connection String is being built ...");
             Console.WriteLine();
             SqlConnectionStringBuilder sqlConnectionStringBuilder = new SqlConnectionStringBuilder();
@@ -36,32 +64,36 @@ namespace SqlServerUserSample
             sqlConnectionStringBuilder.UserID = SqlServerUser;
             sqlConnectionStringBuilder.Password = SqlServerUserPassword;
             sqlConnectionStringBuilder.TrustServerCertificate = true;
-            string sqlConnectionString = sqlConnectionStringBuilder.ToString();
+            string result = sqlConnectionStringBuilder.ToString();
 
             // NEVER EVER print or log the connection string like this in your production system!
             // It contains the plaintext password before the connection was opened.
-            ColorConsole.WriteColoredLabelTextLine("Connection String", sqlConnectionString);
+            ColorConsole.WriteHighlightedLabelTextLine("Connection String", result);
             Console.WriteLine();
 
-            Console.WriteLine("Connection is being established ...");
-            Console.WriteLine();
-            using (SqlConnection sqlConnection = new SqlConnection(sqlConnectionString))
-            {
-                sqlConnection.Open();
-
-                // AFTER the connection was opened, it's safe to log or print SqlConnection.ConnectionString!
-                // As you can see, the password got removed.
-                ColorConsole.WriteColoredLabelTextLine("Connected to", sqlConnection.ConnectionString);
-
-                // Query and print user context
-                Console.WriteLine("User context is being queried ...");
-                Console.WriteLine();
-                QueryAndPrintUserContext(sqlConnection);
-            }
+            return result;
         }
 
-        private static void QueryAndPrintUserContext(SqlConnection sqlConnection)
+        private static SqlConnection EstablishSqlConnection(string sqlConnectionString)
         {
+            Console.WriteLine("Connection is being established ...");
+            Console.WriteLine();
+            SqlConnection result = new SqlConnection(sqlConnectionString);
+            result.Open();
+
+            // AFTER the connection was opened, it's safe to log or print SqlConnection.ConnectionString!
+            // As you can see, the password got removed.
+            ColorConsole.WriteHighlightedLabelTextLine("Connected to", result.ConnectionString);
+            Console.WriteLine();
+
+            return result;
+        }
+
+        private static void QueryUserContext(SqlConnection sqlConnection)
+        {
+            Console.WriteLine("User context is being queried ...");
+            Console.WriteLine();
+
             SqlUserContext.QueryUserContext(
                 sqlConnection,
                 out string? userId,
@@ -76,17 +108,18 @@ namespace SqlServerUserSample
                 out string? sessionUser,
                 out string? systemUser);
 
-            ColorConsole.WriteColoredLabelTextLine("USER_ID", userId);
-            ColorConsole.WriteColoredLabelTextLine("USER_NAME", userName);
-            ColorConsole.WriteColoredLabelTextLine("USER_SID", userSid);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_ID", sUserId);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_NAME", sUserName);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_SID", sUserSid);
-            ColorConsole.WriteColoredLabelTextLine("SUSER_SNAME", sUserSName);
-            ColorConsole.WriteColoredLabelTextLine("CURRENT_USER", currentUser);
-            ColorConsole.WriteColoredLabelTextLine("ORIGINAL_LOGIN", originalLogin);
-            ColorConsole.WriteColoredLabelTextLine("SESSION_USER", sessionUser);
-            ColorConsole.WriteColoredLabelTextLine("SYSTEM_USER", systemUser);
+            ColorConsole.WriteHighlightedLabelTextLine("USER_ID() function", userId);
+            ColorConsole.WriteHighlightedLabelTextLine("USER_NAME() function", userName);
+            ColorConsole.WriteHighlightedLabelTextLine("USER_SID() function", userSid);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_ID() function", sUserId);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_NAME() function", sUserName);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_SID() function", sUserSid);
+            ColorConsole.WriteHighlightedLabelTextLine("SUSER_SNAME() function", sUserSName);
+            ColorConsole.WriteHighlightedLabelTextLine("CURRENT_USER variable", currentUser);
+            ColorConsole.WriteHighlightedLabelTextLine("ORIGINAL_LOGIN() function", originalLogin);
+            ColorConsole.WriteHighlightedLabelTextLine("SESSION_USER variable", sessionUser);
+            ColorConsole.WriteHighlightedLabelTextLine("SYSTEM_USER variable", systemUser);
+            Console.WriteLine();
         }
     }
 }
